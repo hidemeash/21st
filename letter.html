@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>i love you!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .parchment{max-width:760px;margin:2rem auto;background:linear-gradient(#fffdf7,#fff7ec);border:3px solid var(--peach);border-radius:16px;padding:2rem 1.5rem;box-shadow:var(--shadow)}
+    .type{font-family:'Poppins',sans-serif;font-size:1.1rem;line-height:1.9}
+    .type b{color:var(--pink-dark)}
+    .signature{font-family:'Abril Fatface',serif;font-size:2rem;color:var(--pink-dark)}
+    .confetti{position:fixed;left:50%;top:20%;width:10px;height:10px;background:hsl(var(--h) 80% 64%);border-radius:2px;transform:translate(-50%,-50%);animation:shoot .9s ease-out forwards}
+    @keyframes shoot{to{transform:translate(calc(-50% + (var(--r)*1px)), calc(-50% + 280px)) rotate(720deg); opacity:0}}
+  </style>
+</head>
+<body>
+  <script>
+    if (localStorage.getItem('invite_ok') !== '1') {
+      location.href = 'index.html';
+    }
+  </script>
+  <header class="nav-wrap">
+    <nav class="container d-flex justify-content-between align-items-center py-3">
+      <a class="brand" href="index.html#surprises">baby<span>⋆</span>wuffie</a>
+  
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1 class="section-title text-center mt-4">for u, my solace</h1>
+    <div class="parchment">
+      <div id="typed" class="type"></div>
+      <div class="text-end mt-4"><span class="signature" id="signature" style="visibility:hidden">— your wuffie</span></div>
+    </div>
+  </main>
+
+
+  <script>
+    const lines=[
+      `happy 21st birthday my baby euueueueueue adult na talaga. okay u can now finally say ur favorite phrase “we’re not kids anymore” okay sah HAHAHAHAHAHAHAHAHA.`,
+      `first of all, i’m beyond proud of u babyyy. tumagos for prelim yeyyy. i know u were so stressed and drained pero look at u. u made it. and even if u doubt urself sometimes or say things like “kailan kaya ako sisipagin,” i hope u know i see how hard u try. u might feel like u’re not doing enough pero u are. u’re trying and showing up and doing what u can and that already means so much. and yes, it’s okay to rest. i will keep saying that until u fully believe it. resting doesn’t make u weak or lazy. it means u’re human 'nooo and don’t worry, i didn’t forget the deal ha. perfume mo? doblehin ko nalang po pag-uwi para happy ka hehe. deserve mo ‘yonnn.`,
+      `i’m really sorry baby if ever i added to ur stress. i know that week was hard for u and yet i still brought my own overthinking and problem into it. it wasn’t fair. the guilt still sticks with me sometimes. even now, my thoughts still get loud but i’m trying. i just want u to know that. i’m not perfect, but i love u in all the ways i know how.`,
+      `also side note lang, thank u tita for making love and giving birth to the loml. sorry po tita pero grabe talaga. kung wala ka hindi ko makikilala ‘tong gwapo kong baby HAHHAHAHAHAHAHAHAH baby na takot sa mama pero grabe na na-explore and yes i admit na selos ako noon pero water under the bridge na po ‘yon. pero bakit? ay wait greeting pala ‘to not open forum hehe sorry po.`,
+      `wuffie kooooo >< i’m really really grateful for u. u know that. ang sarap mong kausap, ang sarap mong magmahal, ang sarap mong mahalin, at ang sarap mo HAHHAHAHAHAHAHA. thank u for giving me ur time kahit pagod kana and sleepy. thank u for letting me be my full self around u, whether i’m being clingy or tamad or makulit or overthinking or super happy. u always let me be, and u love me through all of it. and that’s something i’ll never take for granted.`,
+      `i honestly never thought i would find something this soft and this safe. u gave me the kind of love that never made me feel small. with u, i felt seen, heard, and held. thank u for that. i’ll always remember that version of u. the u that made me feel lighter. did i ever tell u? u make me happier. not in the way na kailangan kita para maging okay but just that… with u, life feels a little softer. a little kinder. and a lot more fun.`,
+      `i just want u to know, kahit ano pang piliin mong path in life, kahit mag-iba man ang gusto mo in the future, i’ll always be proud of u. u don’t have to do anything grand to deserve that. i’m proud of the u who keeps trying, the u who gets tired but still gets up. the u who’s figuring things out day by day. i’m proud of all versions of u. and wag mong tawagin na shits ‘yung letters ko ha if ever eueeuueuee. kotong ka talaga. this came from the heart ‘no. kahit buksan mo pa, heart yan. no cap.`,
+      `i love u so so so much. u’re always gonna be my baby, my wuffie. parang automatic na lang sa’kin, whenever i hear or say those words, u’re the only one that comes to my mind. kasi u’re the one na laging kadugtong ng mga salitang ‘yan hehe. see u when i see u emee, december bawi time ko na. anything u want at hindi na para magkaroon pa ng digital footprint HAHAHAHAHAHAHAHA.`,
+      `my bayyyy, u make life feel less heavy. and i’m really thankful that somehow, i get to be with u in this moment.`,
+      `mahal na mahal ka ni ash. palagi. in all the ways i can.`,
+      `ps: i hope that i don’t see ur eyes from other kids in the future.`,
+    ];
+    const el=document.getElementById('typed');
+    let i=0, j=0;
+    function type(){
+      if(i<lines.length){
+        if(j<=lines[i].length){
+          el.innerHTML = lines.slice(0,i).map(l=>`<p>${l}</p>`).join('')+`<p><b>${lines[i].slice(0,j)}</b><span class="blink">|</span></p>`;
+          j++; setTimeout(type, 35);
+        } else { i++; j=0; setTimeout(type, 400);}    
+      } else { el.innerHTML = lines.map(l=>`<p>${l}</p>`).join(''); document.getElementById('signature').style.visibility='visible'; }
+    }
+    type();
+  </script>
+  <audio id="bgm" src="music.mp3" loop playsinline></audio>
+  <script>
+    const bgm = document.getElementById('bgm');
+    // Start playback from 0:03
+    if (bgm) {
+      const startAtSeconds = 3;
+      const seekToStart = () => { try { bgm.currentTime = startAtSeconds; } catch (e) {} };
+      if (bgm.readyState >= 1) { // HAVE_METADATA or higher
+        seekToStart();
+      } else {
+        bgm.addEventListener('loadedmetadata', seekToStart, { once: true });
+      }
+    }
+    function tryPlay(){ if(!bgm) return; bgm.volume = 0.7; bgm.play().catch(()=>{}); }
+    // If opened via overlay with ?auto=1, play immediately on load
+    const params = new URLSearchParams(location.search);
+    if (params.get('auto') === '1') {
+      if (document.readyState === 'complete') tryPlay(); else window.addEventListener('load', tryPlay);
+      window.addEventListener('pageshow', tryPlay);
+    }
+  </script>
+</body>
+</html>
+
+

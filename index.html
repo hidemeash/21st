@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>happy birthday, my wuffie!</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="nav-wrap">
+        <nav class="container d-flex justify-content-between align-items-center py-3">
+            <a class="brand" id="brandHome" href="#top">baby<span>⋆</span>wuffie</a>
+           
+        </nav>
+    </header>
+
+    <main class="hero" id="top">
+        <div class="container position-relative text-center">
+            <div class="ticket-card mx-auto">
+                <h1 class="hero-title">When’s<br> your <br>birthday?</h1>
+            </div>
+
+            <form class="bday-form d-flex justify-content-center gap-3 mt-4" autocomplete="off">
+                <div class="select-wrap">
+                    <input id="month" class="pretty-select" aria-label="Month" placeholder="MM" inputmode="numeric" maxlength="2">
+                </div>
+                <div class="select-wrap">
+                    <input id="day" class="pretty-select" aria-label="Day" placeholder="DD" inputmode="numeric" maxlength="2">
+                </div>
+                <div class="select-wrap">
+                    <input id="year" class="pretty-select" aria-label="Year" placeholder="YYYY" inputmode="numeric" maxlength="4">
+                </div>
+            </form>
+
+            <div id="feedback" class="feedback mt-3" role="status" aria-live="polite"></div>
+
+            <div class="down-arrow mt-4" id="scrollArrow" title="Scroll">
+                <span>↓</span>
+            </div>
+        </div>
+    </main>
+
+    <section class="surprises hidden" id="surprises">
+        <div class="container text-center py-5">
+            <h2 class="section-title">BOLAGA</h2>
+            <p class="mb-4">enjoy 😉</p>
+            <div class="row g-4 justify-content-center">
+                <div class="col-10 col-sm-6 col-lg-4">
+                    <a class="surprise-card disabled" id="toGallery" href="gallery.html">
+                        <div class="card-inner">
+                            <h3>bits</h3>
+                            <p>:p</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-10 col-sm-6 col-lg-4">
+                    <a class="surprise-card disabled" id="toLetter" href="letter.html">
+                        <div class="card-inner">
+                            <h3>for u, my solace</h3>
+                            <p>>.<</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Inline overlay loader for letter to ensure click counts as gesture for audio -->
+    <div class="overlay" id="letterOverlay">
+        <iframe id="letterFrame" title="for u, my solace" allow="autoplay"></iframe>
+    </div>
+
+    <!-- Inline overlay loader for gallery video autoplay with sound -->
+    <div class="overlay" id="galleryOverlay">
+        <iframe id="galleryFrame" title="bits" allow="autoplay"></iframe>
+    </div>
+
+    <footer class="py-4 text-center small text-muted">
+        ashie ♡
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+
