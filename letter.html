@@ -100,13 +100,19 @@
     document.addEventListener('touchstart', enableMusic, { once: true });
     document.addEventListener('keydown', enableMusic, { once: true });
     
-    // Try to start immediately (may not work due to browser restrictions)
-    if (document.readyState === 'complete') {
-      startMusic();
-    } else {
-      window.addEventListener('load', startMusic);
+    // Check if opened via overlay with ?auto=1 (clicked from index page)
+    const params = new URLSearchParams(location.search);
+    const shouldAuto = params.get('auto') === '1';
+    
+    if (shouldAuto) {
+      // Start music immediately when opened from index page click
+      if (document.readyState === 'complete') {
+        startMusic();
+      } else {
+        window.addEventListener('load', startMusic);
+      }
+      window.addEventListener('pageshow', startMusic);
     }
-    window.addEventListener('pageshow', startMusic);
   </script>
 </body>
 </html>
