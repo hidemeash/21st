@@ -24,7 +24,7 @@
   </script>
   <header class="nav-wrap">
     <nav class="container d-flex justify-content-between align-items-center py-3">
-      <a class="brand" href="index.html#surprises">baby<span>⋆</span>wuffie</a>
+      <a class="brand" href="index.html">baby<span>⋆</span>wuffie</a>
   
     </nav>
   </header>
@@ -67,7 +67,6 @@
   <audio id="bgm" src="music.mp3" loop playsinline preload="metadata"></audio>
   <script>
     const bgm = document.getElementById('bgm');
-    let hasUserInteracted = false;
     
     // Start playback from 0:03
     if (bgm) {
@@ -81,31 +80,18 @@
     }
     
     function tryPlay(){ 
-      if(!bgm || !hasUserInteracted) return; 
+      if(!bgm) return; 
       bgm.volume = 0.7; 
       bgm.play().catch(()=>{}); 
     }
     
-    // Enable audio on first user interaction
-    function enableAudio() {
-      hasUserInteracted = true;
+    // Auto-play music on page load
+    if (document.readyState === 'complete') {
       tryPlay();
-      // Remove listeners after first interaction
-      document.removeEventListener('touchstart', enableAudio);
-      document.removeEventListener('click', enableAudio);
+    } else {
+      window.addEventListener('load', tryPlay);
     }
-    
-    // Listen for user interaction
-    document.addEventListener('touchstart', enableAudio, { once: true });
-    document.addEventListener('click', enableAudio, { once: true });
-    
-    // If opened via overlay with ?auto=1, try to play immediately
-    const params = new URLSearchParams(location.search);
-    if (params.get('auto') === '1') {
-      hasUserInteracted = true; // Assume user interaction from overlay
-      if (document.readyState === 'complete') tryPlay(); else window.addEventListener('load', tryPlay);
-      window.addEventListener('pageshow', tryPlay);
-    }
+    window.addEventListener('pageshow', tryPlay);
   </script>
 </body>
 </html>
