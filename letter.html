@@ -48,7 +48,7 @@
       `i honestly never thought i would find something this soft and this safe. u gave me the kind of love that never made me feel small. with u, i felt seen, heard, and held. thank u for that. i’ll always remember that version of u. the u that made me feel lighter. did i ever tell u? u make me happier. not in the way na kailangan kita para maging okay but just that… with u, life feels a little softer. a little kinder. and a lot more fun.`,
       `i just want u to know, kahit ano pang piliin mong path in life, kahit mag-iba man ang gusto mo in the future, i’ll always be proud of u. u don’t have to do anything grand to deserve that. i’m proud of the u who keeps trying, the u who gets tired but still gets up. the u who’s figuring things out day by day. i’m proud of all versions of u. and wag mong tawagin na shits ‘yung letters ko ha if ever eueeuueuee. kotong ka talaga. this came from the heart ‘no. kahit buksan mo pa, heart yan. no cap.`,
       `i love u so so so much. u’re always gonna be my baby, my wuffie. parang automatic na lang sa’kin, whenever i hear or say those words, u’re the only one that comes to my mind. kasi u’re the one na laging kadugtong ng mga salitang ‘yan hehe. see u when i see u emee, december bawi time ko na. anything u want at hindi na para magkaroon pa ng digital footprint HAHAHAHAHAHAHAHA.`,
-      `my bayyyy, u make life feel less heavy. and i’m really thankful that somehow, i get to be with u in this moment.`,
+      `my babyyyy, u make life feel less heavy. and i’m really thankful that somehow, i get to be with u in this moment.`,
       `mahal na mahal ka ni ash. palagi. in all the ways i can.`,
       `ps: i hope that i don’t see ur eyes from other kids in the future.`,
     ];
@@ -64,9 +64,11 @@
     }
     type();
   </script>
-  <audio id="bgm" src="music.mp3" loop playsinline></audio>
+  <audio id="bgm" src="music.mp3" loop playsinline preload="metadata"></audio>
   <script>
     const bgm = document.getElementById('bgm');
+    let hasUserInteracted = false;
+    
     // Start playback from 0:03
     if (bgm) {
       const startAtSeconds = 3;
@@ -77,10 +79,30 @@
         bgm.addEventListener('loadedmetadata', seekToStart, { once: true });
       }
     }
-    function tryPlay(){ if(!bgm) return; bgm.volume = 0.7; bgm.play().catch(()=>{}); }
-    // If opened via overlay with ?auto=1, play immediately on load
+    
+    function tryPlay(){ 
+      if(!bgm || !hasUserInteracted) return; 
+      bgm.volume = 0.7; 
+      bgm.play().catch(()=>{}); 
+    }
+    
+    // Enable audio on first user interaction
+    function enableAudio() {
+      hasUserInteracted = true;
+      tryPlay();
+      // Remove listeners after first interaction
+      document.removeEventListener('touchstart', enableAudio);
+      document.removeEventListener('click', enableAudio);
+    }
+    
+    // Listen for user interaction
+    document.addEventListener('touchstart', enableAudio, { once: true });
+    document.addEventListener('click', enableAudio, { once: true });
+    
+    // If opened via overlay with ?auto=1, try to play immediately
     const params = new URLSearchParams(location.search);
     if (params.get('auto') === '1') {
+      hasUserInteracted = true; // Assume user interaction from overlay
       if (document.readyState === 'complete') tryPlay(); else window.addEventListener('load', tryPlay);
       window.addEventListener('pageshow', tryPlay);
     }
