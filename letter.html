@@ -64,9 +64,10 @@
     }
     type();
   </script>
-  <audio id="bgm" src="music.mp3" loop autoplay playsinline preload="metadata"></audio>
+  <audio id="bgm" src="music.mp3" loop playsinline preload="metadata"></audio>
   <script>
     const bgm = document.getElementById('bgm');
+    let musicStarted = false;
     
     // Start playback from 0:03
     if (bgm) {
@@ -79,19 +80,33 @@
       }
     }
     
-    function tryPlay(){ 
-      if(!bgm) return; 
+    function startMusic(){ 
+      if(!bgm || musicStarted) return; 
+      musicStarted = true;
       bgm.volume = 0.7; 
       bgm.play().catch(()=>{}); 
     }
     
-    // Auto-play music on page load
-    if (document.readyState === 'complete') {
-      tryPlay();
-    } else {
-      window.addEventListener('load', tryPlay);
+    // Start music on any user interaction
+    function enableMusic() {
+      startMusic();
+      document.removeEventListener('click', enableMusic);
+      document.removeEventListener('touchstart', enableMusic);
+      document.removeEventListener('keydown', enableMusic);
     }
-    window.addEventListener('pageshow', tryPlay);
+    
+    // Listen for user interaction
+    document.addEventListener('click', enableMusic, { once: true });
+    document.addEventListener('touchstart', enableMusic, { once: true });
+    document.addEventListener('keydown', enableMusic, { once: true });
+    
+    // Try to start immediately (may not work due to browser restrictions)
+    if (document.readyState === 'complete') {
+      startMusic();
+    } else {
+      window.addEventListener('load', startMusic);
+    }
+    window.addEventListener('pageshow', startMusic);
   </script>
 </body>
 </html>
