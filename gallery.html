@@ -93,11 +93,25 @@
       document.addEventListener('click', startVideo, { once: true });
       document.addEventListener('touchstart', startVideo, { once: true });
       
-      // Auto-slide after 3 seconds
-      setTimeout(() => {
-        const bs = bootstrap.Carousel.getOrCreateInstance(carouselEl);
-        bs.next();
-      }, 3000);
+      // Auto-slide continuously every 3 seconds
+      let slideInterval;
+      function startAutoSlide() {
+        slideInterval = setInterval(() => {
+          const bs = bootstrap.Carousel.getOrCreateInstance(carouselEl);
+          const currentIndex = Array.from(carouselEl.querySelectorAll('.carousel-item')).findIndex(item => item.classList.contains('active'));
+          const totalSlides = carouselEl.querySelectorAll('.carousel-item').length;
+          
+          if (currentIndex < totalSlides - 1) {
+            bs.next();
+          } else {
+            // Reached the end, stop auto-sliding
+            clearInterval(slideInterval);
+          }
+        }, 3000);
+      }
+      
+      // Start auto-sliding after 3 seconds
+      setTimeout(startAutoSlide, 3000);
       
       // Also move to next slide when video ends (backup)
       hv.addEventListener('ended', ()=>{
@@ -106,7 +120,7 @@
       });
     }
     
-    // Replay video when returning to first slide
+    // Replay video when returning to first slide and restart auto-sliding
     carouselEl.addEventListener('slide.bs.carousel', function (e) {
       if (e.to === 0) { // Going back to first slide (video)
         setTimeout(() => {
@@ -114,6 +128,10 @@
           if (video) {
             video.currentTime = 0;
             video.play().catch(() => {});
+          }
+          // Restart auto-sliding
+          if (typeof startAutoSlide === 'function') {
+            setTimeout(startAutoSlide, 3000);
           }
         }, 500); // Small delay to ensure slide transition is complete
       }
