@@ -43,6 +43,12 @@ function checkInvite() {
   const m = parseInt(monthEl.value, 10);
   const d = parseInt(dayEl.value, 10);
   const y = parseInt(yearEl.value, 10);
+  
+  // Hide dropdown prompts when all fields are filled
+  if (m && d && y) {
+    hideAllDropdowns();
+  }
+  
   if (!m || !d || !y) {
     setFeedback('', '');
     disableSurprises(true);
@@ -65,6 +71,12 @@ function setFeedback(text, state) {
   feedbackEl.textContent = text;
   feedbackEl.classList.remove('good','bad');
   if (state) feedbackEl.classList.add(state);
+}
+
+function hideAllDropdowns() {
+  document.querySelectorAll('.dropdown-list').forEach(dropdown => {
+    dropdown.classList.remove('open');
+  });
 }
 
 function disableSurprises(disabled){

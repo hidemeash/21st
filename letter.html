@@ -107,10 +107,11 @@
       }
       window.addEventListener('pageshow', startMusic);
       
-      // Also try to start after a short delay
+      // Multiple attempts to ensure music starts
       setTimeout(startMusic, 100);
       setTimeout(startMusic, 500);
       setTimeout(startMusic, 1000);
+      setTimeout(startMusic, 2000);
     }
   </script>
 </body>
