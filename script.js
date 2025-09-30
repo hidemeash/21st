@@ -34,7 +34,14 @@ function createDropdown(input, items){
   function open(){ render(input.value); list.classList.add('open'); }
   function close(){ list.classList.remove('open'); }
   input.addEventListener('focus', open);
-  input.addEventListener('input', ()=>{ render(input.value); checkInvite(); });
+  input.addEventListener('input', ()=>{
+    render(input.value);
+    // Hide dropdown when input reaches max length (complete value)
+    if (input.value.length === parseInt(input.getAttribute('maxlength'))) {
+      close();
+    }
+    checkInvite();
+  });
   input.addEventListener('keydown', e=>{ if(e.key==='Escape') close(); });
   document.addEventListener('click', e=>{ if(!input.parentElement.contains(e.target)) close(); });
 }
