@@ -64,7 +64,7 @@
     }
     type();
   </script>
-  <audio id="bgm" src="music.mp3" loop preload="auto" controls style="display:none;"></audio>
+  <audio id="bgm" src="music.mp3" loop preload="auto"></audio>
   <script>
     const bgm = document.getElementById('bgm');
     console.log('=== AUDIO DEBUG START ===');
@@ -92,33 +92,33 @@
       console.log('Audio muted:', bgm.muted);
       console.log('Audio volume:', bgm.volume);
       
-      // Set audio properties
-      bgm.muted = false;
+      // Safari-specific approach: start muted, then unmute
+      bgm.muted = true;
       bgm.volume = 0.7;
       bgm.currentTime = 3;
       
-      console.log('Attempting to play...');
+      console.log('Attempting to play (Safari-safe approach)...');
       
       bgm.play().then(() => {
-        console.log('SUCCESS: Music started!');
-        console.log('Audio playing:', !bgm.paused);
-        console.log('Audio currentTime:', bgm.currentTime);
+        console.log('Muted play succeeded, now unmuting...');
+        setTimeout(() => {
+          bgm.muted = false;
+          console.log('SUCCESS: Music started and unmuted!');
+          console.log('Audio playing:', !bgm.paused);
+          console.log('Audio currentTime:', bgm.currentTime);
+        }, 200);
       }).catch((e) => {
-        console.log('ERROR: Audio play failed:', e);
+        console.log('ERROR: Even muted play failed:', e);
         console.log('Error name:', e.name);
         console.log('Error message:', e.message);
         
-        // Try with muted first, then unmute
-        console.log('Trying muted approach...');
-        bgm.muted = true;
+        // Try direct unmuted play as last resort
+        console.log('Trying direct unmuted play...');
+        bgm.muted = false;
         bgm.play().then(() => {
-          console.log('Muted play succeeded, now unmuting...');
-          setTimeout(() => {
-            bgm.muted = false;
-            console.log('Unmuted successfully');
-          }, 100);
+          console.log('SUCCESS: Direct play worked!');
         }).catch((e2) => {
-          console.log('Even muted play failed:', e2);
+          console.log('All play attempts failed:', e2);
         });
       });
     }
