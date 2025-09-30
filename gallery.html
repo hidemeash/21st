@@ -8,28 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <style>
-    .carousel-item img, .carousel-item video { 
-      height: 400px; 
-      object-fit: cover; 
-    }
     .carousel-caption { background: rgba(0,0,0,0.5); border-radius: 8px; }
-    
-    /* Mobile responsive - reduce size on small screens */
-    @media (max-width: 768px) {
-      .carousel-item img, .carousel-item video { 
-        height: 250px; 
-        max-width: 90%;
-        margin: 0 auto;
-        display: block;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .carousel-item img, .carousel-item video { 
-        height: 200px; 
-        max-width: 85%;
-      }
-    }
   </style>
 </head>
 <body>
@@ -37,6 +16,23 @@
     if (localStorage.getItem('invite_ok') !== '1') {
       location.href = 'index.html';
     }
+    
+    // Debug media loading
+    window.addEventListener('load', () => {
+      console.log('Gallery page loaded');
+      const video = document.getElementById('heroVideo');
+      const img1 = document.querySelector('img[src="pic1.jpg"]');
+      const img2 = document.querySelector('img[src="pic2.jpg"]');
+      
+      console.log('Video element:', video);
+      console.log('Image 1 element:', img1);
+      console.log('Image 2 element:', img2);
+      
+      if (video) {
+        console.log('Video src:', video.src);
+        console.log('Video readyState:', video.readyState);
+      }
+    });
   </script>
   <header class="nav-wrap">
     <nav class="container d-flex justify-content-between align-items-center py-3">
@@ -99,19 +95,21 @@
       }
     }
     
-    // Start playback when auto flag is present (opened by overlay with user gesture)
+    // Start video immediately when gallery opens
     const params = new URLSearchParams(location.search);
     const shouldAuto = params.get('auto') === '1';
-    if (shouldAuto) {
-      console.log('Gallery auto mode detected');
-      if (document.readyState === 'complete') playActiveVideo(); else window.addEventListener('load', playActiveVideo);
-      window.addEventListener('pageshow', playActiveVideo);
-      
-      // Force video to start playing immediately
-      setTimeout(() => {
-        const video = document.getElementById('heroVideo');
-        if (video) {
-          console.log('Attempting to start video...');
+    
+    function startVideoImmediately() {
+      const video = document.getElementById('heroVideo');
+      if (video) {
+        console.log('Starting video immediately with audio...');
+        // Try to play with audio immediately
+        video.muted = false;
+        video.play().then(() => {
+          console.log('Video started with audio!');
+        }).catch((e) => {
+          console.log('Audio play failed, trying muted approach:', e);
+          // Fallback: start muted, then unmute
           video.muted = true;
           video.play().then(() => {
             console.log('Video started muted, unmuting...');
@@ -120,54 +118,128 @@
               console.log('Video unmuted');
             }, 200);
           }).catch(() => {
-            video.muted = false;
-            video.play().catch(() => {});
+            console.log('Even muted play failed');
           });
-        }
-      }, 100);
+        });
+      }
+    }
+    
+    // Start video immediately when page loads
+    if (document.readyState === 'complete') {
+      startVideoImmediately();
+      // Start auto-slide timer after video starts
+      setTimeout(() => {
+        startAutoSlide();
+      }, 1000);
+    } else {
+      window.addEventListener('load', () => {
+        startVideoImmediately();
+        // Start auto-slide timer after video starts
+        setTimeout(() => {
+          startAutoSlide();
+        }, 1000);
+      });
+    }
+    
+    // Also try when opened via overlay
+    if (shouldAuto) {
+      console.log('Gallery auto mode detected');
+      startVideoImmediately();
+      window.addEventListener('pageshow', () => {
+        startVideoImmediately();
+        setTimeout(() => {
+          startAutoSlide();
+        }, 1000);
+      });
     }
 
-    // Force video autoplay and auto-slide
+    // Handle video events and carousel navigation
     const hv = document.getElementById('heroVideo');
+    let autoSlideTimer = null;
+    
+    function startAutoSlide() {
+      // Clear any existing timer
+      if (autoSlideTimer) {
+        clearTimeout(autoSlideTimer);
+      }
+      
+      // Check if current slide is video
+      const activeSlide = carouselEl.querySelector('.carousel-item.active');
+      const isVideoSlide = activeSlide && activeSlide.querySelector('video');
+      
+      if (!isVideoSlide) {
+        // If it's an image slide, auto-advance after 3 seconds
+        autoSlideTimer = setTimeout(() => {
+          const bs = bootstrap.Carousel.getOrCreateInstance(carouselEl);
+          bs.next();
+        }, 3000);
+        console.log('Auto-slide timer set for 3 seconds');
+      }
+    }
+    
+    function stopAutoSlide() {
+      if (autoSlideTimer) {
+        clearTimeout(autoSlideTimer);
+        autoSlideTimer = null;
+        console.log('Auto-slide timer cleared');
+      }
+    }
+    
     if (hv) {
-      // Try to play immediately
-      hv.play().catch(() => {});
-      
-      // Also try on load
-      hv.addEventListener('loadeddata', () => {
-        hv.play().catch(() => {});
-      });
-      
-      // Try on canplay
-      hv.addEventListener('canplay', () => {
-        hv.play().catch(() => {});
-      });
-      
-      // Try on canplaythrough
-      hv.addEventListener('canplaythrough', () => {
-        hv.play().catch(() => {});
-      });
-      
-      // Only slide when video ends, not on timer
-      
       // Move to next slide when video ends
       hv.addEventListener('ended', ()=>{
         const bs = bootstrap.Carousel.getOrCreateInstance(carouselEl);
         bs.next();
       });
+      
+      // Add error handling
+      hv.addEventListener('error', (e) => {
+        console.log('Video error:', e);
+      });
+      
+      // Add load event for debugging
+      hv.addEventListener('loadeddata', () => {
+        console.log('Video data loaded');
+      });
     }
     
-    // Replay video when returning to first slide
+    // Handle carousel slide events
     carouselEl.addEventListener('slide.bs.carousel', function (e) {
+      // Stop auto-slide when transitioning
+      stopAutoSlide();
+      
+      // Replay video when returning to first slide
       if (e.to === 0) { // Going back to first slide (video)
         setTimeout(() => {
           const video = document.getElementById('heroVideo');
           if (video) {
             video.currentTime = 0;
-            video.play().catch(() => {});
+            // Try to play with audio immediately
+            video.muted = false;
+            video.play().then(() => {
+              console.log('Video replay started with audio!');
+            }).catch((e) => {
+              console.log('Replay audio failed, trying muted:', e);
+              video.muted = true;
+              video.play().then(() => {
+                setTimeout(() => {
+                  video.muted = false;
+                }, 200);
+              }).catch(() => {
+                video.muted = false;
+                video.play().catch(() => {});
+              });
+            });
           }
         }, 500); // Small delay to ensure slide transition is complete
       }
+    });
+    
+    carouselEl.addEventListener('slid.bs.carousel', function (e) {
+      // Start auto-slide after slide transition is complete
+      setTimeout(() => {
+        startAutoSlide();
+      }, 100);
     });
   </script>
 </body>
