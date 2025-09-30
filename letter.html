@@ -106,6 +106,7 @@
     
     if (shouldAuto) {
       // Start music immediately when opened from index page click
+      musicStarted = true; // Mark as started to bypass user interaction requirement
       if (document.readyState === 'complete') {
         startMusic();
       } else {
