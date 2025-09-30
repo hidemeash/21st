@@ -158,14 +158,45 @@ document.getElementById('toLetter')?.addEventListener('click', (e)=>{
   e.preventDefault();
   const ok = localStorage.getItem('invite_ok') === '1';
   if (!ok) return;
+  
+  // Enable audio context immediately on user click
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    const audioContext = new AudioContextClass();
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+  } catch (e) {
+    console.log('Audio context setup failed:', e);
+  }
+  
   const overlay = document.getElementById('letterOverlay');
   const frame = document.getElementById('letterFrame');
   if (!overlay || !frame) return;
   overlay.classList.add('open');
+  
   // Append query flag so letter page knows to start audio on load
   const url = new URL('letter.html', location.href);
   url.searchParams.set('auto', '1');
   frame.src = url.toString();
+  
+  // Also try to enable audio context in iframe after it loads
+  frame.addEventListener('load', () => {
+    try {
+      const iframeDoc = frame.contentDocument || frame.contentWindow.document;
+      if (iframeDoc) {
+        const AudioContextClass = frame.contentWindow.AudioContext || frame.contentWindow.webkitAudioContext;
+        if (AudioContextClass) {
+          const audioContext = new AudioContextClass();
+          if (audioContext.state === 'suspended') {
+            audioContext.resume();
+          }
+        }
+      }
+    } catch (e) {
+      console.log('Iframe audio context setup failed:', e);
+    }
+  });
 });
 
 document.getElementById('toGallery')?.addEventListener('click', (e)=>{
