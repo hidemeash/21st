@@ -107,29 +107,33 @@
     
     if (shouldAuto) {
       // Start music immediately when opened from index page click
-      if (document.readyState === 'complete') {
-        startMusic();
-      } else {
-        window.addEventListener('load', startMusic);
-      }
-      window.addEventListener('pageshow', startMusic);
+      // The user gesture from clicking the card should allow autoplay with sound
+      startMusic();
       
       // Multiple attempts to ensure music starts
       setTimeout(startMusic, 100);
       setTimeout(startMusic, 500);
       setTimeout(startMusic, 1000);
       setTimeout(startMusic, 2000);
+      
+      // Also try when page is fully loaded
+      if (document.readyState === 'complete') {
+        startMusic();
+      } else {
+        window.addEventListener('load', startMusic);
+      }
+      window.addEventListener('pageshow', startMusic);
     }
     
-    // Add user interaction handler to enable audio
+    // Add user interaction handler as fallback for direct access
     document.addEventListener('click', () => {
-      if (bgm && bgm.paused) {
+      if (bgm && bgm.paused && !shouldAuto) {
         startMusic();
       }
     }, { once: true });
     
     document.addEventListener('touchstart', () => {
-      if (bgm && bgm.paused) {
+      if (bgm && bgm.paused && !shouldAuto) {
         startMusic();
       }
     }, { once: true });
