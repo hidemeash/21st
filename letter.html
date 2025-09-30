@@ -64,7 +64,7 @@
     }
     type();
   </script>
-  <audio id="bgm" src="music.mp3" loop autoplay playsinline preload="metadata"></audio>
+  <audio id="bgm" src="music.mp3" loop autoplay playsinline preload="auto"></audio>
   <script>
     const bgm = document.getElementById('bgm');
     let musicStarted = false;
@@ -83,7 +83,14 @@
     function startMusic(){ 
       if(!bgm) return; 
       bgm.volume = 0.7; 
-      bgm.play().catch(()=>{}); 
+      bgm.muted = false; // Ensure audio is not muted
+      bgm.play().catch((e) => {
+        console.log('Audio play failed:', e);
+        // Try again with a slight delay
+        setTimeout(() => {
+          bgm.play().catch(() => {});
+        }, 100);
+      }); 
     }
     
     // Try to start music immediately
@@ -113,6 +120,19 @@
       setTimeout(startMusic, 1000);
       setTimeout(startMusic, 2000);
     }
+    
+    // Add user interaction handler to enable audio
+    document.addEventListener('click', () => {
+      if (bgm && bgm.paused) {
+        startMusic();
+      }
+    }, { once: true });
+    
+    document.addEventListener('touchstart', () => {
+      if (bgm && bgm.paused) {
+        startMusic();
+      }
+    }, { once: true });
   </script>
 </body>
 </html>
