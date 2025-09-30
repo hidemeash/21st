@@ -81,8 +81,7 @@
     }
     
     function startMusic(){ 
-      if(!bgm || musicStarted) return; 
-      musicStarted = true;
+      if(!bgm) return; 
       bgm.volume = 0.7; 
       bgm.play().catch(()=>{}); 
     }
@@ -106,13 +105,17 @@
     
     if (shouldAuto) {
       // Start music immediately when opened from index page click
-      musicStarted = true; // Mark as started to bypass user interaction requirement
       if (document.readyState === 'complete') {
         startMusic();
       } else {
         window.addEventListener('load', startMusic);
       }
       window.addEventListener('pageshow', startMusic);
+      
+      // Also try to start after a short delay
+      setTimeout(startMusic, 100);
+      setTimeout(startMusic, 500);
+      setTimeout(startMusic, 1000);
     }
   </script>
 </body>
