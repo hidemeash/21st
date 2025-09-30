@@ -64,113 +64,73 @@
     }
     type();
   </script>
-  <audio id="bgm" src="music.mp3" loop playsinline preload="auto"></audio>
+  <audio id="bgm" src="music.mp3" loop preload="auto"></audio>
   <script>
     const bgm = document.getElementById('bgm');
-    let musicStarted = false;
-    
-    // Start playback from 0:03
-    if (bgm) {
-      const startAtSeconds = 3;
-      const seekToStart = () => { try { bgm.currentTime = startAtSeconds; } catch (e) {} };
-      if (bgm.readyState >= 1) { // HAVE_METADATA or higher
-        seekToStart();
-      } else {
-        bgm.addEventListener('loadedmetadata', seekToStart, { once: true });
-      }
-    }
-    
-    function startMusic(){ 
-      if(!bgm) return; 
-      console.log('Attempting to start music...');
-      bgm.volume = 0.7; 
-      bgm.muted = false; // Ensure audio is not muted
-      bgm.play().then(() => {
-        console.log('Music started successfully!');
-      }).catch((e) => {
-        console.log('Audio play failed:', e);
-        // Try again with a slight delay
-        setTimeout(() => {
-          bgm.play().catch(() => {});
-        }, 100);
-      }); 
-    }
-    
-    // Try to start music immediately
-    if (document.readyState === 'complete') {
-      startMusic();
-    } else {
-      window.addEventListener('load', startMusic);
-    }
-    window.addEventListener('pageshow', startMusic);
+    console.log('Audio element:', bgm);
+    console.log('Audio src:', bgm ? bgm.src : 'not found');
     
     // Check if opened via overlay with ?auto=1 (clicked from index page)
     const params = new URLSearchParams(location.search);
     const shouldAuto = params.get('auto') === '1';
     console.log('Should auto start music:', shouldAuto);
+    console.log('URL params:', location.search);
     
+    function startMusic() {
+      if (!bgm) {
+        console.log('No audio element found');
+        return;
+      }
+      
+      console.log('Attempting to start music...');
+      console.log('Audio readyState:', bgm.readyState);
+      console.log('Audio paused:', bgm.paused);
+      
+      bgm.volume = 0.7;
+      bgm.muted = false;
+      
+      // Start from 3 seconds
+      bgm.currentTime = 3;
+      
+      bgm.play().then(() => {
+        console.log('Music started successfully!');
+        console.log('Audio playing:', !bgm.paused);
+      }).catch((e) => {
+        console.log('Audio play failed:', e);
+        console.log('Error name:', e.name);
+        console.log('Error message:', e.message);
+      });
+    }
+    
+    // Simple approach - try to start when page loads
     if (shouldAuto) {
-      console.log('Auto mode detected - attempting to start music');
+      console.log('Auto mode - trying to start music');
       
       // Try immediately
       startMusic();
       
-      // Try when DOM is ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', startMusic);
-      }
-      
-      // Try when page is fully loaded
-      if (document.readyState === 'complete') {
+      // Try when audio can play
+      bgm.addEventListener('canplay', () => {
+        console.log('Audio can play - attempting to start');
         startMusic();
-      } else {
-        window.addEventListener('load', startMusic);
-      }
+      });
       
-      // Try on pageshow
-      window.addEventListener('pageshow', startMusic);
+      // Try when audio is loaded
+      bgm.addEventListener('loadeddata', () => {
+        console.log('Audio data loaded - attempting to start');
+        startMusic();
+      });
       
-      // Multiple attempts to ensure music starts
-      setTimeout(startMusic, 50);
+      // Multiple attempts
       setTimeout(startMusic, 100);
-      setTimeout(startMusic, 200);
       setTimeout(startMusic, 500);
       setTimeout(startMusic, 1000);
-      setTimeout(startMusic, 2000);
-      
-      // Try when audio metadata is loaded
-      if (bgm) {
-        bgm.addEventListener('loadedmetadata', startMusic);
-        bgm.addEventListener('canplay', startMusic);
-        bgm.addEventListener('canplaythrough', startMusic);
-      }
-      
-      // Also try to enable audio context immediately
-      if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
-        try {
-          const AudioContextClass = AudioContext || webkitAudioContext;
-          const audioContext = new AudioContextClass();
-          if (audioContext.state === 'suspended') {
-            audioContext.resume().then(() => {
-              console.log('Audio context resumed');
-              startMusic();
-            });
-          }
-        } catch (e) {
-          console.log('Audio context creation failed:', e);
-        }
-      }
     }
     
-    // Add user interaction handler as fallback for direct access
+    // Fallback for direct access
     document.addEventListener('click', () => {
-      if (bgm && bgm.paused && !shouldAuto) {
-        startMusic();
-      }
-    }, { once: true });
-    
-    document.addEventListener('touchstart', () => {
-      if (bgm && bgm.paused && !shouldAuto) {
+      if (bgm && bgm.paused) {
+        console.log('User clicked - attempting to start music');
         startMusic();
       }
     }, { once: true });
