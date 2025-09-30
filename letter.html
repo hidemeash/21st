@@ -64,123 +64,116 @@
     }
     type();
   </script>
-  <audio id="bgm" src="music.mp3" loop preload="auto" muted></audio>
+  <audio id="bgm" src="music.mp3" loop preload="auto" controls style="display:none;"></audio>
   <script>
     const bgm = document.getElementById('bgm');
-    let audioContext = null;
-    let source = null;
-    let isPlaying = false;
+    console.log('=== AUDIO DEBUG START ===');
+    console.log('Audio element:', bgm);
+    console.log('Audio src:', bgm ? bgm.src : 'not found');
+    console.log('Audio readyState:', bgm ? bgm.readyState : 'no element');
     
     // Check if opened via overlay with ?auto=1 (clicked from index page)
     const params = new URLSearchParams(location.search);
     const shouldAuto = params.get('auto') === '1';
-    
-    // Initialize Web Audio API for better cross-browser support
-    function initAudioContext() {
-      if (!audioContext) {
-        try {
-          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          audioContext = new AudioContextClass();
-          
-          // Resume audio context if suspended
-          if (audioContext.state === 'suspended') {
-            audioContext.resume().then(() => {
-              console.log('Audio context resumed');
-            });
-          }
-        } catch (e) {
-          console.log('Audio context creation failed:', e);
-        }
-      }
-      return audioContext;
-    }
+    console.log('Should auto start music:', shouldAuto);
+    console.log('URL params:', location.search);
+    console.log('Document ready state:', document.readyState);
     
     function startMusic() {
-      if (isPlaying) return;
+      console.log('=== STARTING MUSIC ===');
       
-      console.log('Starting music...');
+      if (!bgm) {
+        console.log('ERROR: No audio element found');
+        return;
+      }
       
-      // Method 1: Try HTML5 audio with unmute
-      if (bgm) {
-        bgm.muted = false;
-        bgm.volume = 0.7;
-        bgm.currentTime = 3;
+      console.log('Audio readyState:', bgm.readyState);
+      console.log('Audio paused:', bgm.paused);
+      console.log('Audio muted:', bgm.muted);
+      console.log('Audio volume:', bgm.volume);
+      
+      // Set audio properties
+      bgm.muted = false;
+      bgm.volume = 0.7;
+      bgm.currentTime = 3;
+      
+      console.log('Attempting to play...');
+      
+      bgm.play().then(() => {
+        console.log('SUCCESS: Music started!');
+        console.log('Audio playing:', !bgm.paused);
+        console.log('Audio currentTime:', bgm.currentTime);
+      }).catch((e) => {
+        console.log('ERROR: Audio play failed:', e);
+        console.log('Error name:', e.name);
+        console.log('Error message:', e.message);
         
+        // Try with muted first, then unmute
+        console.log('Trying muted approach...');
+        bgm.muted = true;
         bgm.play().then(() => {
-          console.log('HTML5 audio started successfully!');
-          isPlaying = true;
-        }).catch((e) => {
-          console.log('HTML5 audio failed:', e);
-          
-          // Method 2: Try Web Audio API
-          tryWebAudioAPI();
+          console.log('Muted play succeeded, now unmuting...');
+          setTimeout(() => {
+            bgm.muted = false;
+            console.log('Unmuted successfully');
+          }, 100);
+        }).catch((e2) => {
+          console.log('Even muted play failed:', e2);
         });
-      }
-    }
-    
-    function tryWebAudioAPI() {
-      const ctx = initAudioContext();
-      if (!ctx) return;
-      
-      try {
-        // Create audio source from HTML audio element
-        if (!source) {
-          source = ctx.createMediaElementSource(bgm);
-          source.connect(ctx.destination);
-        }
-        
-        // Ensure audio context is running
-        if (ctx.state === 'suspended') {
-          ctx.resume().then(() => {
-            bgm.play().then(() => {
-              console.log('Web Audio API started successfully!');
-              isPlaying = true;
-            }).catch((e) => {
-              console.log('Web Audio API failed:', e);
-            });
-          });
-        } else {
-          bgm.play().then(() => {
-            console.log('Web Audio API started successfully!');
-            isPlaying = true;
-          }).catch((e) => {
-            console.log('Web Audio API failed:', e);
-          });
-        }
-      } catch (e) {
-        console.log('Web Audio API setup failed:', e);
-      }
+      });
     }
     
     // Auto-start when opened from main page
     if (shouldAuto) {
-      console.log('Auto mode detected - starting music');
+      console.log('=== AUTO MODE DETECTED ===');
       
       // Start immediately
       startMusic();
       
       // Multiple fallback attempts
-      setTimeout(startMusic, 100);
-      setTimeout(startMusic, 300);
-      setTimeout(startMusic, 500);
-      setTimeout(startMusic, 1000);
+      setTimeout(() => {
+        console.log('Fallback attempt 1 (100ms)');
+        startMusic();
+      }, 100);
+      
+      setTimeout(() => {
+        console.log('Fallback attempt 2 (500ms)');
+        startMusic();
+      }, 500);
+      
+      setTimeout(() => {
+        console.log('Fallback attempt 3 (1000ms)');
+        startMusic();
+      }, 1000);
       
       // Try when audio is ready
-      bgm.addEventListener('canplay', startMusic);
-      bgm.addEventListener('loadeddata', startMusic);
+      bgm.addEventListener('canplay', () => {
+        console.log('Audio can play event fired');
+        startMusic();
+      });
+      
+      bgm.addEventListener('loadeddata', () => {
+        console.log('Audio data loaded event fired');
+        startMusic();
+      });
+      
+      bgm.addEventListener('error', (e) => {
+        console.log('Audio error event:', e);
+      });
       
       // Try when page is fully loaded
       if (document.readyState === 'complete') {
+        console.log('Document already complete, starting music');
         startMusic();
       } else {
-        window.addEventListener('load', startMusic);
+        window.addEventListener('load', () => {
+          console.log('Window load event fired');
+          startMusic();
+        });
       }
     }
     
-    // Initialize audio context on any user interaction (as fallback)
-    document.addEventListener('click', initAudioContext, { once: true });
-    document.addEventListener('touchstart', initAudioContext, { once: true });
-    document.addEventListener('keydown', initAudioContext, { once: true });
+    console.log('=== AUDIO DEBUG END ===');
   </script>
 </body>
 </html>
